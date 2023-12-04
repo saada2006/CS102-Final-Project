@@ -17,6 +17,13 @@ private:
     void init_rng();
     int gen_random_num(int mi, int ma); // ma is not inclusive!
 
+    bool make_all_consecutive(int* row);
+    bool collapse_row(int* row);
+    bool collapse_board();
+
+    void reverse_board_horizontal();
+    void reverse_board_vertical();
+
     Board _board;
 };
 
