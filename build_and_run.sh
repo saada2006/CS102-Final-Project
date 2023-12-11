@@ -4,6 +4,6 @@ mkdir build
 cd build
 
 cmake ..
-make
+make -j $(nproc)
 
 ./src/CS102_FINAL_PROJ
