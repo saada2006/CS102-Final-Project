@@ -7,6 +7,3 @@
 [submodule "vendor/glm"]
 	path = vendor/glm
 	url = https://github.com/g-truc/glm
-[submodule "vendor/soil2-cmake"]
-	path = vendor/soil2-cmake
-	url = https://github.com/saada2006/soil2-cmake
