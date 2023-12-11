@@ -1,3 +1,4 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
 #include "window.h"
 
 static struct GLFW_Init_Struct_T {

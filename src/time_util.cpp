@@ -1,3 +1,5 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
+
 #include "time_util.h"
 #include <time.h>
 #include <stdint.h>

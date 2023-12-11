@@ -1,3 +1,4 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
 #include "buffer.h"
 #include <stdint.h>
 #include <cstring>

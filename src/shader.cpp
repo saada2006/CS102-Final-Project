@@ -1,3 +1,4 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
 #include "shader.h"
 #include <stdio.h>
 #include <stdlib.h>

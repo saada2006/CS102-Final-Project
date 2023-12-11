@@ -1,3 +1,5 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
+
 #include "texture.h"
 #include "buffer.h"
 
