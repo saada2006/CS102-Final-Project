@@ -1,6 +1,5 @@
 #pragma once
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <SOIL2.h>
 #include "opengl.h"
 #include <string>
