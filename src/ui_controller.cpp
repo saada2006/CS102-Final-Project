@@ -4,7 +4,24 @@
 
 #include <iostream>
 
+bool glew_already_init = false;
+UIController::UIController() {
+    _window.open("2048", 1280, 720, true);
+
+    if(!glew_already_init && glewInit() != GLEW_OK) {
+        std::cerr << "GLEW INITIATION FAILED!";
+        abort();
+    }
+
+    glew_already_init = true;
+}
+
+UIController::~UIController() {
+    _window.close();
+}
+
 void UIController::render_board(const Board& board) {
+    // render and swap buffers
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
             std::cout << board._num[i][j] << '\t';
@@ -12,6 +29,9 @@ void UIController::render_board(const Board& board) {
         std::cout << '\n';
     }
     std::cout.flush();
+
+    _window.update_screen();
+    _window.update_poll_events();
 }
 
 MovementInput UIController::poll_user_input() {
@@ -27,4 +47,8 @@ MovementInput UIController::poll_user_input() {
     std::cin >> input;
 
     return (MovementInput)input;
+}
+
+bool UIController::window_open() {
+    return !_window.should_close();
 }

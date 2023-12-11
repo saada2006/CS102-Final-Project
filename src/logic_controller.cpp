@@ -17,22 +17,22 @@ LogicController::LogicController() {
 }
 
 void LogicController::accept_input(MovementInput input) {
-    bool did_move = false;
+    _updated = false;
 
     if(input == MOV_L) {
-        did_move = collapse_board();
+        _updated = collapse_board();
     } else if(input == MOV_R) {
         reverse_board_horizontal();
-        did_move = collapse_board();
+        _updated = collapse_board();
         reverse_board_horizontal();
     } else if(input == MOV_U) {
         reverse_board_vertical();
-        did_move = collapse_board();
+        _updated = collapse_board();
         reverse_board_vertical();
     } else if(input == MOV_D) {
         reverse_board_vertical();
         reverse_board_horizontal();
-        did_move = collapse_board();
+        _updated = collapse_board();
         reverse_board_horizontal();
         reverse_board_vertical();
     } else {
@@ -40,11 +40,9 @@ void LogicController::accept_input(MovementInput input) {
         abort();
     }
 
-    if(did_move) {
+    if(_updated) {
         fill_rand_num();
     }
-
-    
 }
 
 Board LogicController::get_board() const {

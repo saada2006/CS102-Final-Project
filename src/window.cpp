@@ -10,50 +10,53 @@ static struct GLFW_Init_Struct_T {
 	}
 } GLFW_Init;
 
-void Window::Open(const char* Title, uint32_t X, uint32_t Y, bool fullscreen) {
-	Width = X;
-	Height = Y;
+void Window::open(const char* Title, uint32_t X, uint32_t Y, bool fullscreen) {
+	_width = X;
+	_height = Y;
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 	if (fullscreen) {
-		Width = mode->width;
-		Height = mode->height;
+		_width = mode->width;
+		_height = mode->height;
 	}
 
 	// To prevent crazzily weird FPS
 	glfwSwapInterval(1);
 
-	WindowHandle = glfwCreateWindow(Width, Height, Title, fullscreen ? monitor : nullptr, nullptr);
-	glfwMakeContextCurrent(WindowHandle);
+	_handle = glfwCreateWindow(_width, _height, Title, fullscreen ? monitor : nullptr, nullptr);
+	glfwMakeContextCurrent(_handle);
 }
 
-void Window::Close(void) {
-	glfwDestroyWindow(WindowHandle);
+void Window::close(void) {
+	glfwDestroyWindow(_handle);
 }
 
-bool Window::ShouldClose(void) {
-	return glfwWindowShouldClose(WindowHandle);
+bool Window::should_close(void) {
+	return glfwWindowShouldClose(_handle);
 }
 
-void Window::Update(void) {
-	glfwSwapBuffers(WindowHandle);
+void Window::update_screen(void) {
+	glfwSwapBuffers(_handle);
+}
+
+void Window::update_poll_events(void) {
 	glfwPollEvents();
 }
 
-void Window::SetInputCallback(GLFWcursorposfun MouseCallback) {
-	glfwSetInputMode(WindowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(WindowHandle, MouseCallback);
+void Window::set_input_callback(GLFWcursorposfun MouseCallback) {
+	glfwSetInputMode(_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(_handle, MouseCallback);
 }
 
-bool Window::GetKey(uint32_t KeyCode) {
-	return glfwGetKey(WindowHandle, KeyCode);
+bool Window::get_key(uint32_t KeyCode) {
+	return glfwGetKey(_handle, KeyCode);
 }
 
-void Window::SetVisibility(bool vis) {
+void Window::set_visibility(bool vis) {
 	if (vis) {
-		glfwShowWindow(WindowHandle);
+		glfwShowWindow(_handle);
 	}
 	else {
-		glfwHideWindow(WindowHandle);
+		glfwHideWindow(_handle);
 	}
 }

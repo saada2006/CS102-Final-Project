@@ -36,6 +36,7 @@ private:
     void reverse_board_vertical();
 
     Board _board;
+    bool _updated;
 };
 
 #endif

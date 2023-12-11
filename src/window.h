@@ -9,25 +9,27 @@
 
 class Window {
 public:
-	void Open(const char* Title, uint32_t Width, uint32_t Height, bool fullscreen);
-	void Close(void);
+	void open(const char* Title, uint32_t Width, uint32_t Height, bool fullscreen);
+	void close(void);
 
-	bool ShouldClose(void);
-	void Update(void);
+	bool should_close(void);
+	
+	void update_screen(void);
+	void update_poll_events(void);
 
-	void SetInputCallback(GLFWcursorposfun MouseCallback);
+	void set_input_callback(GLFWcursorposfun MouseCallback);
 
-	bool GetKey(uint32_t KeyCode);
+	bool get_key(uint32_t KeyCode);
 
-	void SetVisibility(bool vis);
+	void set_visibility(bool vis);
 
 private:
-	GLFWwindow* WindowHandle;
+	GLFWwindow* _handle;
 
-	int32_t Width;
-	int32_t Height;
+	int32_t _width;
+	int32_t _height;
 
-	friend class Renderer;
+	friend class UIController;
 };
 
 #endif

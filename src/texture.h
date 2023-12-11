@@ -1,3 +1,5 @@
+// OLD CODE - DO NOT TOUCH THIS GARBAGE!
+
 #pragma once
 
 #include <SOIL2.h>
