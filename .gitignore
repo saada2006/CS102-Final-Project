@@ -2,3 +2,5 @@
 !./vendor/CMakeLists.txt
 
 build/
+
+.vscode/
