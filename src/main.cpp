@@ -4,7 +4,9 @@
 
 #include <iostream>
 
-int main() {
+int main(int argc, char** argv) {
+    std::cout << "Executing in location " << argv[0] << '\n'; 
+
     LogicController logic_con;
     UIController ui_con;
 

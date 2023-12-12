@@ -14,6 +14,8 @@ UIController::UIController() : _last_input(MOV_NONE) {
     }
 
     glew_already_init = true;
+
+    _tile_shader.CompileFiles("./res/tile.vert", "./res/tile.frag");
 }
 
 UIController::~UIController() {

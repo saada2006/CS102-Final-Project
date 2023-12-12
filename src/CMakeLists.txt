@@ -1,5 +1,5 @@
 set(
-    CS102_FINAL_PROJ_SRC
+    GAME_SRC
     "./board.cpp"
     "./buffer.cpp"
     "./logic_controller.cpp"
@@ -12,6 +12,6 @@ set(
     "./window.cpp"
 )
 
-add_executable(CS102_FINAL_PROJ ${CS102_FINAL_PROJ_SRC})
+add_executable(Game2048 ${GAME_SRC})
 
-target_link_libraries(CS102_FINAL_PROJ PRIVATE glfw libglew_static glm::glm soil2)
+target_link_libraries(Game2048 PRIVATE glfw libglew_static glm::glm soil2)

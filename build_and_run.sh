@@ -6,4 +6,5 @@ cd build
 cmake ..
 make -j $(nproc)
 
-./src/CS102_FINAL_PROJ
+cd bin
+./Game2048
