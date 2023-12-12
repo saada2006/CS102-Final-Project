@@ -17,7 +17,7 @@ UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720)
 
     _background_color = glm::vec3(0.9, 0.9, 0.8);
 
-    _tile_shader.CompileFiles("./res/tile.vert", "./res/tile.frag");
+    _tile_shader.CompileFiles("./res/shaders/tile.vert", "./res/shaders/tile.frag");
     _tile_scale = 0.8;
     _tile_color = glm::vec3(0.8, 0.8, 0.7);
 
