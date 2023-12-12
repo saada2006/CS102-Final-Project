@@ -9,6 +9,8 @@
 #include "vtx_array.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class UIController {
 public:
@@ -28,10 +30,15 @@ private:
     Window _window;
     MovementInput _last_input;
 
+    glm::vec3 _background_color;
+
     ShaderRasterization _tile_shader;
     glm::vec3 _tile_color;
     float _tile_scale;
+
+    glm::mat4 _tile_transform;
     
+    int _width, _height;
 };
 
 #endif

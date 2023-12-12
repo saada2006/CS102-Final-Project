@@ -10,10 +10,7 @@ int main(int argc, char** argv) {
     LogicController logic_con;
     UIController ui_con;
 
-    float x = 0.5;
     while(ui_con.window_open()) {
-        glClearColor(x, x, x, 1.0);
-
         logic_con.accept_input(ui_con.poll_user_input());
         ui_con.render_board(logic_con.get_board());
     }

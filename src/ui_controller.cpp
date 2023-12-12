@@ -5,8 +5,8 @@
 #include <iostream>
 
 bool glew_already_init = false;
-UIController::UIController() : _last_input(MOV_NONE) {
-    _window.open("2048", 640, 480, false);
+UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720) {
+    _window.open("2048: The Game", _width, _height, false);
 
     if(!glew_already_init && glewInit() != GLEW_OK) {
         std::cerr << "GLEW INITIATION FAILED!";
@@ -15,8 +15,22 @@ UIController::UIController() : _last_input(MOV_NONE) {
 
     glew_already_init = true;
 
+    _background_color = glm::vec3(0.9, 0.9, 0.8);
+
     _tile_shader.CompileFiles("./res/tile.vert", "./res/tile.frag");
     _tile_scale = 0.8;
+    _tile_color = glm::vec3(0.8, 0.8, 0.7);
+
+
+    float horizontal = 1.0;
+    float vertical = (horizontal * _height) / _width;
+
+    float tile_prescale = 0.5f;
+    glm::vec2 tile_offset = glm::vec2(-0.5, 0.0);
+    glm::mat4 pretransform = glm::scale(glm::mat4(1.0f), glm::vec3(tile_prescale, tile_prescale, 1.0f));
+    pretransform = glm::translate(pretransform, glm::vec3(tile_offset, 0.0f));
+
+    _tile_transform = glm::ortho(-horizontal, horizontal, -vertical, vertical, -0.1f, -1.0f) * pretransform;
 }
 
 UIController::~UIController() {
@@ -35,16 +49,17 @@ void UIController::render_board(const Board& board) {
     }
     std::cout.flush();
     */
+    glClearColor(_background_color.r, _background_color.y, _background_color.z, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-
-   VertexArray tile_arr;
-   tile_arr.CreateBinding();
-   int n_tile_triangles = gen_tiles(tile_arr);
-   _tile_shader.CreateBinding();
-   _tile_color = glm::vec3(sin(glfwGetTime()) * 0.5 + 0.5);
-   _tile_shader.LoadVector3F32("tile_color", _tile_color);
-   glDrawArrays(GL_TRIANGLES, 0, n_tile_triangles);
-   tile_arr.Free();
+    VertexArray tile_arr;
+    tile_arr.CreateBinding();
+    int n_tile_triangles = gen_tiles(tile_arr);
+    _tile_shader.CreateBinding();
+    _tile_shader.LoadVector3F32("tile_color", _tile_color);
+    _tile_shader.LoadMat4x4F32("tile_transform", _tile_transform);
+    glDrawArrays(GL_TRIANGLES, 0, n_tile_triangles);
+    tile_arr.Free();
 
     std::cout << glGetError() << std::endl;
 
@@ -69,6 +84,7 @@ bool UIController::window_open() {
     return !_window.should_close();
 }
 
+bool tform_dump = false;
 int UIController::gen_tiles(VertexArray& tile_arr) {
     Buffer tile_buf;
 
@@ -102,6 +118,15 @@ int UIController::gen_tiles(VertexArray& tile_arr) {
 
     tile_arr.CreateStream(0, 2, 0);
     //tile_buf.Free();
+
+    if(!tform_dump) {
+        for(auto& v : tiles) {
+            glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 5.0f, 1.0f);
+            std::cout << gl_Position.x << '\t' << gl_Position.y << '\t' << gl_Position.z << '\t' << gl_Position.w << '\n';
+        }
+        tform_dump = true;
+    }
+    std::cout.flush();
 
     return tiles.size();
 }   
