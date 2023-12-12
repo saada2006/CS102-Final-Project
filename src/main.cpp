@@ -15,7 +15,7 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //logic_con.accept_input(ui_con.poll_user_input());
+        logic_con.accept_input(ui_con.poll_user_input());
         ui_con.render_board(logic_con.get_board());
     }
     

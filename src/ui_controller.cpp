@@ -5,8 +5,8 @@
 #include <iostream>
 
 bool glew_already_init = false;
-UIController::UIController() {
-    _window.open("2048", 1280, 720, true);
+UIController::UIController() : _last_input(MOV_NONE) {
+    _window.open("2048", 640, 480, false);
 
     if(!glew_already_init && glewInit() != GLEW_OK) {
         std::cerr << "GLEW INITIATION FAILED!";
@@ -22,6 +22,7 @@ UIController::~UIController() {
 
 void UIController::render_board(const Board& board) {
     // render and swap buffers
+    std::cout << "\n\n\n";
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
             std::cout << board._num[i][j] << '\t';
@@ -35,18 +36,29 @@ void UIController::render_board(const Board& board) {
 }
 
 MovementInput UIController::poll_user_input() {
-    std::cout << "Please enter a choice:\n"
-              << "\tMOV_U\t=\t" << MOV_U << '\n'
-              << "\tMOV_D\t=\t" << MOV_D << '\n'
-              << "\tMOV_R\t=\t" << MOV_R << '\n'
-              << "\tMOV_L\t=\t" << MOV_L << '\n';
-              
-    std::cout.flush();
+    MovementInput implied_input = MOV_NONE;
 
-    int input;
-    std::cin >> input;
+    MovementInput current_input = poll_current_input();
+    if(current_input != _last_input) {
+        implied_input = current_input;
+    }
+    _last_input = current_input;
 
-    return (MovementInput)input;
+    return implied_input;
+}
+
+MovementInput UIController::poll_current_input() {
+    if(_window.get_key(GLFW_KEY_W)) {
+        return MOV_U;
+    } else if(_window.get_key(GLFW_KEY_S)) {
+        return MOV_D;
+    } else if(_window.get_key(GLFW_KEY_D)) {
+        return MOV_R;
+    } else if(_window.get_key(GLFW_KEY_A)) {
+        return MOV_L;
+    } else {
+        return MOV_NONE;
+    }
 }
 
 bool UIController::window_open() {

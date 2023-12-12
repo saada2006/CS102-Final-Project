@@ -19,7 +19,9 @@ LogicController::LogicController() {
 void LogicController::accept_input(MovementInput input) {
     _updated = false;
 
-    if(input == MOV_L) {
+    if(input == MOV_NONE) {
+        return;
+    } else if(input == MOV_L) {
         _updated = collapse_board();
     } else if(input == MOV_R) {
         reverse_board_horizontal();

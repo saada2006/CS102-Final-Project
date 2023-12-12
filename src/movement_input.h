@@ -2,6 +2,7 @@
 #define MOVEMENT_INPUT_H
 
 enum MovementInput {
+    MOV_NONE,
     MOV_U,
     MOV_D,
     MOV_R,

@@ -16,7 +16,10 @@ public:
 
     bool window_open();
 private:
+    MovementInput poll_current_input();
+
     Window _window;
+    MovementInput _last_input;
 };
 
 #endif
