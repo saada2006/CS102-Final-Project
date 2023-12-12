@@ -23,6 +23,8 @@ public:
 private:
     MovementInput poll_current_input();
 
+    int gen_tiles(VertexArray& tile_arr);
+
     Window _window;
     MovementInput _last_input;
 

@@ -24,6 +24,7 @@ UIController::~UIController() {
 
 void UIController::render_board(const Board& board) {
     // render and swap buffers
+    /*
     std::cout << "\n\n\n";
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
@@ -32,6 +33,19 @@ void UIController::render_board(const Board& board) {
         std::cout << '\n';
     }
     std::cout.flush();
+    */
+
+
+   VertexArray tile_arr;
+   tile_arr.CreateBinding();
+   int n_tile_triangles = gen_tiles(tile_arr);
+   _tile_shader.CreateBinding();
+   _tile_color = glm::vec3(sin(glfwGetTime()) * 0.5 + 0.5);
+   _tile_shader.LoadVector3F32("tile_color", _tile_color);
+   glDrawArrays(GL_TRIANGLES, 0, n_tile_triangles);
+   tile_arr.Free();
+
+    std::cout << glGetError() << std::endl;
 
     _window.update_screen();
     _window.update_poll_events();
@@ -49,6 +63,30 @@ MovementInput UIController::poll_user_input() {
     return implied_input;
 }
 
+
+bool UIController::window_open() {
+    return !_window.should_close();
+}
+
+int UIController::gen_tiles(VertexArray& tile_arr) {
+    Buffer tile_buf;
+
+    tile_buf.CreateBinding(BUFFER_TARGET_ARRAY);
+    
+    std::vector<glm::vec2> tiles = {
+        {0.1, 0.1},
+        {0.9, 0.1},
+        {0.9, 0.9}
+    };
+
+    tile_buf.UploadData(tiles, GL_STATIC_DRAW);
+
+    tile_arr.CreateStream(0, 2, 0);
+    //tile_buf.Free();
+
+    return tiles.size();
+}   
+
 MovementInput UIController::poll_current_input() {
     if(_window.get_key(GLFW_KEY_W)) {
         return MOV_U;
@@ -61,8 +99,4 @@ MovementInput UIController::poll_current_input() {
     } else {
         return MOV_NONE;
     }
-}
-
-bool UIController::window_open() {
-    return !_window.should_close();
 }
