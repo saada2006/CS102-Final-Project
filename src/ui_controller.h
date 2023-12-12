@@ -30,6 +30,7 @@ private:
 
     ShaderRasterization _tile_shader;
     glm::vec3 _tile_color;
+    float _tile_scale;
     
 };
 

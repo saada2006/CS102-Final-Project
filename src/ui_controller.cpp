@@ -16,6 +16,7 @@ UIController::UIController() : _last_input(MOV_NONE) {
     glew_already_init = true;
 
     _tile_shader.CompileFiles("./res/tile.vert", "./res/tile.frag");
+    _tile_scale = 0.8;
 }
 
 UIController::~UIController() {
@@ -73,11 +74,29 @@ int UIController::gen_tiles(VertexArray& tile_arr) {
 
     tile_buf.CreateBinding(BUFFER_TARGET_ARRAY);
     
-    std::vector<glm::vec2> tiles = {
-        {0.1, 0.1},
-        {0.9, 0.1},
-        {0.9, 0.9}
+    std::vector<glm::vec2> tile_base = {
+        {-1.0f, -1.0f},
+        { 1.0f, -1.0f},
+        { 1.0f,  1.0f},
+        { 1.0f,  1.0f},
+        {-1.0f,  1.0f},
+        {-1.0f, -1.0f},
     };
+
+    std::vector<glm::vec2> tiles;
+
+    for(int i = 0; i < BOARD_SIZE; i++) {
+        for(int j = 0; j < BOARD_SIZE; j++) {
+            glm::vec2 offset = vec2(i + 0.5f, j + 0.5f) / (float)BOARD_SIZE;
+            offset = offset * 2.0f - 1.0f;
+
+            float adjusted_scale = _tile_scale / BOARD_SIZE;
+            for(auto& v : tile_base) {
+                tiles.push_back(adjusted_scale * v + offset);
+            }
+
+        }
+    }
 
     tile_buf.UploadData(tiles, GL_STATIC_DRAW);
 
