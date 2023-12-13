@@ -5,6 +5,7 @@ set(
     "./logic_controller.cpp"
     "./main.cpp"
     "./shader.cpp"
+    "./text_box.cpp"
     "./texture.cpp"
     "./time_util.cpp"
     "./ui_controller.cpp"

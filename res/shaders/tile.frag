@@ -2,8 +2,8 @@
 
 uniform vec3 tile_color;
 
-out vec3 color;
+out vec4 color;
 
 void main() {
-    color = tile_color;
+    color = vec4(tile_color, 1.0);
 }

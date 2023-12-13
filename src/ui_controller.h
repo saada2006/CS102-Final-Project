@@ -5,6 +5,7 @@
 #include "buffer.h"
 #include "movement_input.h"
 #include "shader.h"
+#include "texture.h"
 #include "window.h"
 #include "vtx_array.h"
 
@@ -25,9 +26,11 @@ public:
 private:
     MovementInput poll_current_input();
 
-    int gen_tiles(VertexArray& tile_arr);
+    int gen_tiles(VertexArray& tile_arr, Buffer& tile_buf);
 
     Window _window;
+    int _width, _height;
+
     MovementInput _last_input;
 
     glm::vec3 _background_color;
@@ -35,10 +38,10 @@ private:
     ShaderRasterization _tile_shader;
     glm::vec3 _tile_color;
     float _tile_scale;
-
     glm::mat4 _tile_transform;
     
-    int _width, _height;
+    Texture2D _bitmap_font;
+    ShaderRasterization _bitmap_shader;
 };
 
 #endif

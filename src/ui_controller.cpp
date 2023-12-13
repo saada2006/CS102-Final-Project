@@ -1,6 +1,9 @@
 #include "ui_controller.h"
 
 #include "board.h"
+#include "text_box.h"
+
+#include <GL/glew.h>
 
 #include <iostream>
 
@@ -14,6 +17,12 @@ UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720)
     }
 
     glew_already_init = true;
+
+    const uint8_t* vendor = glGetString(GL_VENDOR); // Returns the vendor
+    const uint8_t* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+
+    std::cout << "Vendor:\t" << vendor << '\n';
+    std::cout << "Renderer:\t" << renderer << '\n';
 
     _background_color = glm::vec3(0.9, 0.9, 0.8);
 
@@ -31,12 +40,20 @@ UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720)
     pretransform = glm::translate(pretransform, glm::vec3(tile_offset, 0.0f));
 
     _tile_transform = glm::ortho(-horizontal, horizontal, -vertical, vertical, -0.1f, -1.0f) * pretransform;
+
+    _bitmap_shader.CompileFiles("./res/shaders/bitmap.vert", "./res/shaders/bitmap.frag");
+    _bitmap_font.CreateBinding();
+    _bitmap_font.LoadTexture("./res/textures/lazy_font.png");
+
+    glEnable(GL_BLEND);  
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 }
 
 UIController::~UIController() {
     _window.close();
 }
 
+bool asdasda = false;
 void UIController::render_board(const Board& board) {
     // render and swap buffers
     /*
@@ -52,14 +69,35 @@ void UIController::render_board(const Board& board) {
     glClearColor(_background_color.r, _background_color.y, _background_color.z, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    Buffer tile_buf;
     VertexArray tile_arr;
     tile_arr.CreateBinding();
-    int n_tile_triangles = gen_tiles(tile_arr);
+    int n_tile_triangles = gen_tiles(tile_arr, tile_buf);
     _tile_shader.CreateBinding();
     _tile_shader.LoadVector3F32("tile_color", _tile_color);
     _tile_shader.LoadMat4x4F32("tile_transform", _tile_transform);
     glDrawArrays(GL_TRIANGLES, 0, n_tile_triangles);
     tile_arr.Free();
+    tile_buf.Free();
+
+    TextBox tbox;
+    tbox.gen_vtx_array("abcd", glm::vec2(0, 0), 0.2);
+
+    tbox._vtx_arr.CreateBinding();
+    _bitmap_shader.CreateBinding();
+    _bitmap_shader.LoadMat4x4F32("tile_transform", _tile_transform);
+    _bitmap_shader.LoadTexture2D("bitmap", _bitmap_font);
+    glDrawArrays(GL_TRIANGLES, 0, tbox._num_triangles);
+    tbox.free();
+
+    std::cout << "=====================\n";
+    if(!asdasda)
+    for(auto& v : tbox._raw) {
+        glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 0.5f, 1.0f);
+        std::cout << gl_Position.x << '\t' << gl_Position.y << '\t' << gl_Position.z << '\t' << gl_Position.w << '\n';
+    }
+
+    asdasda = true;
 
     std::cout << glGetError() << std::endl;
 
@@ -85,9 +123,7 @@ bool UIController::window_open() {
 }
 
 bool tform_dump = false;
-int UIController::gen_tiles(VertexArray& tile_arr) {
-    Buffer tile_buf;
-
+int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
     tile_buf.CreateBinding(BUFFER_TARGET_ARRAY);
     
     std::vector<glm::vec2> tile_base = {
@@ -117,11 +153,10 @@ int UIController::gen_tiles(VertexArray& tile_arr) {
     tile_buf.UploadData(tiles, GL_STATIC_DRAW);
 
     tile_arr.CreateStream(0, 2, 0);
-    //tile_buf.Free();
 
     if(!tform_dump) {
         for(auto& v : tiles) {
-            glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 5.0f, 1.0f);
+            glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 0.5f, 1.0f);
             std::cout << gl_Position.x << '\t' << gl_Position.y << '\t' << gl_Position.z << '\t' << gl_Position.w << '\n';
         }
         tform_dump = true;
