@@ -8,6 +8,9 @@ const int BITMAP_WIDTH = 16;
 const float BITMAP_CHAR_SIZE = 1.0f / BITMAP_WIDTH;
 
 void TextBox::gen_vtx_array(const std::string& text, const glm::vec2& center, float font_scale) {
+    auto current_center = glm::vec2(font_scale * text.size() / 2.0f, 0.5f * font_scale);
+    auto offset = center - current_center;
+
     std::vector<glm::vec2> text_data;
 
     for(int i = 0; i < text.size(); i++) {
@@ -28,7 +31,7 @@ void TextBox::gen_vtx_array(const std::string& text, const glm::vec2& center, fl
         };
 
         for(int j = 0; j < text_base.size(); j += 2) {
-            text_base[j] = (text_base[j] + glm::vec2(i, 0)) * font_scale;
+            text_base[j] = (text_base[j] + glm::vec2(i, 0)) * font_scale + offset;
         }
 
         for(auto& v : text_base) {

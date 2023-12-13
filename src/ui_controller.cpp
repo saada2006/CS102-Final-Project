@@ -53,7 +53,6 @@ UIController::~UIController() {
     _window.close();
 }
 
-bool asdasda = false;
 void UIController::render_board(const Board& board) {
     // render and swap buffers
     /*
@@ -80,24 +79,24 @@ void UIController::render_board(const Board& board) {
     tile_arr.Free();
     tile_buf.Free();
 
-    TextBox tbox;
-    tbox.gen_vtx_array("abcd", glm::vec2(0, 0), 0.2);
+    for(int i = 0; i < BOARD_SIZE; i++) {
+        for(int j = 0; j < BOARD_SIZE; j++) {
+            auto offset = get_tile_offset(i, j);
+            //offset.y = -offset.y;
 
-    tbox._vtx_arr.CreateBinding();
-    _bitmap_shader.CreateBinding();
-    _bitmap_shader.LoadMat4x4F32("tile_transform", _tile_transform);
-    _bitmap_shader.LoadTexture2D("bitmap", _bitmap_font);
-    glDrawArrays(GL_TRIANGLES, 0, tbox._num_triangles);
-    tbox.free();
+            std::string text = std::to_string(board._num[j][i]);
 
-    std::cout << "=====================\n";
-    if(!asdasda)
-    for(auto& v : tbox._raw) {
-        glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 0.5f, 1.0f);
-        std::cout << gl_Position.x << '\t' << gl_Position.y << '\t' << gl_Position.z << '\t' << gl_Position.w << '\n';
+            TextBox tbox;
+            tbox.gen_vtx_array(text, offset, 0.2);
+
+            tbox._vtx_arr.CreateBinding();
+            _bitmap_shader.CreateBinding();
+            _bitmap_shader.LoadMat4x4F32("tile_transform", _tile_transform);
+            _bitmap_shader.LoadTexture2D("bitmap", _bitmap_font);
+            glDrawArrays(GL_TRIANGLES, 0, tbox._num_triangles);
+            tbox.free();
+        }
     }
-
-    asdasda = true;
 
     std::cout << glGetError() << std::endl;
 
@@ -122,6 +121,14 @@ bool UIController::window_open() {
     return !_window.should_close();
 }
 
+glm::vec2 UIController::get_tile_offset(int i, int j) {
+    glm::vec2 offset = vec2(i + 0.5f, j + 0.5f) / (float)BOARD_SIZE;
+    offset = offset * 2.0f - 1.0f;
+
+    return offset;
+}
+
+
 bool tform_dump = false;
 int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
     tile_buf.CreateBinding(BUFFER_TARGET_ARRAY);
@@ -139,8 +146,7 @@ int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
 
     for(int i = 0; i < BOARD_SIZE; i++) {
         for(int j = 0; j < BOARD_SIZE; j++) {
-            glm::vec2 offset = vec2(i + 0.5f, j + 0.5f) / (float)BOARD_SIZE;
-            offset = offset * 2.0f - 1.0f;
+            glm::vec2 offset = get_tile_offset(i, j);
 
             float adjusted_scale = _tile_scale / BOARD_SIZE;
             for(auto& v : tile_base) {

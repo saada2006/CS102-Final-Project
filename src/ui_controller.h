@@ -27,6 +27,7 @@ private:
     MovementInput poll_current_input();
 
     int gen_tiles(VertexArray& tile_arr, Buffer& tile_buf);
+    glm::vec2 get_tile_offset(int i, int j);
 
     Window _window;
     int _width, _height;

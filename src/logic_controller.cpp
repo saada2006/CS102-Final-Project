@@ -29,13 +29,13 @@ void LogicController::accept_input(MovementInput input) {
         reverse_board_horizontal();
     } else if(input == MOV_U) {
         reverse_board_vertical();
+        reverse_board_horizontal();
         _updated = collapse_board();
+        reverse_board_horizontal();
         reverse_board_vertical();
     } else if(input == MOV_D) {
         reverse_board_vertical();
-        reverse_board_horizontal();
         _updated = collapse_board();
-        reverse_board_horizontal();
         reverse_board_vertical();
     } else {
         std::cout << "Unrecog input " << input << std::endl;

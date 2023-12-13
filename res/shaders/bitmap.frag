@@ -8,4 +8,8 @@ out vec4 color;
 
 void main() {
     color = texture(bitmap, tex_coords);
+
+    if(dot(color.rgb, vec3(1.0)) < 0.1) {
+        discard;
+    }
 }
