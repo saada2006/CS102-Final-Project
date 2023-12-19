@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-const int WINNING_NUMBER = 64;
+const int WINNING_NUMBER = 2048;
 
 LogicController::LogicController() {
     init_rng();
