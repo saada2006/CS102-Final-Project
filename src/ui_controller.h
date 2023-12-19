@@ -20,11 +20,11 @@ public:
 
     void render_board(const Board& board);
 
-    MovementInput poll_user_input();
+    UserInput poll_user_input();
 
     bool window_open();
 private:
-    MovementInput poll_current_input();
+    UserInput poll_current_input();
 
     int gen_tiles(VertexArray& tile_arr, Buffer& tile_buf);
     glm::vec2 get_tile_offset(int i, int j);
@@ -32,7 +32,7 @@ private:
     Window _window;
     int _width, _height;
 
-    MovementInput _last_input;
+    UserInput _last_input;
 
     glm::vec3 _background_color;
 

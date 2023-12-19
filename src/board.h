@@ -5,7 +5,7 @@ const int BOARD_SIZE = 4;
 
 struct Board {
 public:
-    Board();
+    void clear();
 
     int _num[BOARD_SIZE][BOARD_SIZE];
 };

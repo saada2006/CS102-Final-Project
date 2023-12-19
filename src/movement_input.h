@@ -1,7 +1,7 @@
 #ifndef MOVEMENT_INPUT_H
 #define MOVEMENT_INPUT_H
 
-enum MovementInput {
+enum UserInput {
     MOV_NONE,
     MOV_U,
     MOV_D,

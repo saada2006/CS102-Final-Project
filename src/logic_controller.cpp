@@ -9,46 +9,98 @@
 #include <stdlib.h>
 #include <time.h>
 
+const int WINNING_NUMBER = 2048;
+
 LogicController::LogicController() {
     init_rng();
-    
-    fill_rand_num();
-    fill_rand_num();
+
+    restart();
 }
 
-void LogicController::accept_input(MovementInput input) {
-    _updated = false;
+void LogicController::restart() {
+    _game_state = GAME_STATE_IN_PROGRESS;
+    
+    _board.clear();
+    try_fill_rand_num();
+    try_fill_rand_num();
+}
+
+
+void LogicController::accept_input(UserInput input) {
+    if(_game_state != GAME_STATE_IN_PROGRESS) {
+        return;
+    }
+
+    // only add random numbers in conditions where the squares actually update
+    if(move_board(input, _board)) {
+        try_fill_rand_num();
+    }
+
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 4; j++) {
+            if(_board._num[i][j] == WINNING_NUMBER) {
+                std::cout << "Player has won the game!" << std::endl;
+                _game_state = GAME_STATE_WON;
+                return;
+            }
+        }
+    }
+
+    std::vector<UserInput> attempt_moves = {
+        MOV_L, MOV_R, MOV_D, MOV_U
+    };
+
+    bool lost_game = true;
+    for(auto attempt : attempt_moves) {
+        Board temp_board = _board;
+        if(move_board(attempt, temp_board)) {
+            lost_game = false;
+            break;
+        }
+    }
+
+    if(lost_game) {
+        std::cout << "Player has lost game!" << std::endl;
+        _game_state = GAME_STATE_LOST;
+    }
+}
+
+bool LogicController::move_board(UserInput input, Board& temp_board) {
+    bool updated = false;
 
     if(input == MOV_NONE) {
-        return;
+        updated = false;
     } else if(input == MOV_L) {
-        _updated = collapse_board();
+        updated = collapse_board(temp_board);
     } else if(input == MOV_R) {
-        reverse_board_horizontal();
-        _updated = collapse_board();
-        reverse_board_horizontal();
+        reverse_board_horizontal(temp_board);
+        updated = collapse_board(temp_board);
+        reverse_board_horizontal(temp_board);
     } else if(input == MOV_U) {
-        reverse_board_vertical();
-        reverse_board_horizontal();
-        _updated = collapse_board();
-        reverse_board_horizontal();
-        reverse_board_vertical();
+        reverse_board_vertical(temp_board);
+        reverse_board_horizontal(temp_board);
+        updated = collapse_board(temp_board);
+        reverse_board_horizontal(temp_board);
+        reverse_board_vertical(temp_board);
     } else if(input == MOV_D) {
-        reverse_board_vertical();
-        _updated = collapse_board();
-        reverse_board_vertical();
+        reverse_board_vertical(temp_board);
+        updated = collapse_board(temp_board);
+        reverse_board_vertical(temp_board);
     } else {
         std::cout << "Unrecog input " << input << std::endl;
         abort();
     }
 
-    if(_updated) {
-        fill_rand_num();
-    }
+    return updated;
 }
+
 
 Board LogicController::get_board() const {
     return _board;
+}
+
+GameState LogicController::get_game_state() const {
+    return _game_state;
 }
 
 bool LogicController::make_all_consecutive(int* row) {
@@ -88,56 +140,65 @@ bool LogicController::collapse_row(int* row) {
     return any_change;
 }
 
-bool LogicController::collapse_board() {
+bool LogicController::collapse_board(Board& temp_board) {
     bool any_row_changed = false;
     for(int i = 0; i < BOARD_SIZE; i++) {
-        if(collapse_row(_board._num[i])) {
+        if(collapse_row(temp_board._num[i])) {
             any_row_changed = true;
         }
     }
     return any_row_changed;
 }
 
-void LogicController::reverse_board_horizontal() {
+void LogicController::reverse_board_horizontal(Board& temp_board) {
     for(int i = 0; i < BOARD_SIZE; i++) {
-        std::reverse(_board._num[i], _board._num[i] + BOARD_SIZE);
+        std::reverse(temp_board._num[i], temp_board._num[i] + BOARD_SIZE);
     }
 }  
 
-void LogicController::reverse_board_vertical() {
+void LogicController::reverse_board_vertical(Board& temp_board) {
     // transpose the board
     for(int i = 0; i < BOARD_SIZE; i++) {
         for(int j = i + 1; j < BOARD_SIZE; j++) {
-            std::swap(_board._num[i][j], _board._num[j][i]);
+            std::swap(temp_board._num[i][j], temp_board._num[j][i]);
         }
     }
 }
 
 void LogicController::init_rng() {
-    srand(time(nullptr));
+    std::random_device rand_dev;
+    _rng.seed(rand_dev());
 }
 
 
-void LogicController::fill_rand_num() {
-    while(true) {
-        int row = gen_random_num(0, BOARD_SIZE);
-        int col = gen_random_num(0, BOARD_SIZE);
+void LogicController::try_fill_rand_num() {
+    std::vector<std::pair<int, int>> open_slots;
 
-        if(_board._num[row][col] != 0) {
-            continue;
-        } else {
-            int val = gen_random_num(1, 3);
-            _board._num[row][col] = (1 << val);
-            break;
+    for(int i = 0; i < BOARD_SIZE; i++) {
+        for(int j = 0; j < BOARD_SIZE; j++) {
+            if(_board._num[i][j] == 0) {
+                open_slots.emplace_back(i, j);
+            }
         }
+    }
+
+    if(open_slots.size() > 0) {
+        int idx = gen_random_num(0, open_slots.size());
+
+        int i = open_slots[idx].first;
+        int j = open_slots[idx].second;
+
+        int val = gen_random_num(1, 3);
+        _board._num[i][j] = (1 << val);
+
+        std::cout << "Picking " << i << " " << j << std::endl;
+    } else {
+        std::cout << "No empty square found!" << std::endl;
     }
 }
 
-int LogicController::gen_random_num(int mi, int ma) {
-    int val = rand();
+int LogicController::gen_random_num(int minimum, int maximum) {
+    std::uniform_int_distribution<int> idist(minimum, maximum - 1);
 
-    val %= (ma - mi);
-    val += mi;
-
-    return val;
+    return idist(_rng);
 }

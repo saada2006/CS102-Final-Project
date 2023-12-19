@@ -7,6 +7,9 @@
 
 #include <iostream>
 
+//#define CONSOLE_DEBUG_BOARD
+//#define CONSOLE_DUMP_TFORM
+
 bool glew_already_init = false;
 UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720) {
     _window.open("2048: The Game", _width, _height, false);
@@ -53,9 +56,10 @@ UIController::~UIController() {
     _window.close();
 }
 
+
 void UIController::render_board(const Board& board) {
     // render and swap buffers
-    /*
+    #ifdef CONSOLE_DEBUG_BOARD
     std::cout << "\n\n\n";
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
@@ -64,7 +68,8 @@ void UIController::render_board(const Board& board) {
         std::cout << '\n';
     }
     std::cout.flush();
-    */
+    #endif
+
     glClearColor(_background_color.r, _background_color.y, _background_color.z, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -98,16 +103,19 @@ void UIController::render_board(const Board& board) {
         }
     }
 
-    std::cout << glGetError() << std::endl;
+    if(GLenum err = glGetError() != GL_NO_ERROR) {
+        std::cout << err << std::endl;
+        abort();
+    }
 
     _window.update_screen();
     _window.update_poll_events();
 }
 
-MovementInput UIController::poll_user_input() {
-    MovementInput implied_input = MOV_NONE;
+UserInput UIController::poll_user_input() {
+    UserInput implied_input = MOV_NONE;
 
-    MovementInput current_input = poll_current_input();
+    UserInput current_input = poll_current_input();
     if(current_input != _last_input) {
         implied_input = current_input;
     }
@@ -160,6 +168,7 @@ int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
 
     tile_arr.CreateStream(0, 2, 0);
 
+    #ifdef CONSOLE_DUMP_TFORM
     if(!tform_dump) {
         for(auto& v : tiles) {
             glm::vec4 gl_Position = _tile_transform * glm::vec4(v, 0.5f, 1.0f);
@@ -168,11 +177,12 @@ int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
         tform_dump = true;
     }
     std::cout.flush();
+    #endif
 
     return tiles.size();
 }   
 
-MovementInput UIController::poll_current_input() {
+UserInput UIController::poll_current_input() {
     if(_window.get_key(GLFW_KEY_W)) {
         return MOV_U;
     } else if(_window.get_key(GLFW_KEY_S)) {
