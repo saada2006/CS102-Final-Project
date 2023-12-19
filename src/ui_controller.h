@@ -3,7 +3,8 @@
 
 #include "board.h"
 #include "buffer.h"
-#include "movement_input.h"
+#include "game_state.h"
+#include "user_input.h"
 #include "shader.h"
 #include "texture.h"
 #include "window.h"
@@ -18,7 +19,7 @@ public:
     UIController();
     ~UIController();
 
-    void render_board(const Board& board);
+    void render_game(const Board& board, GameState game_state);
 
     UserInput poll_user_input();
 
@@ -34,11 +35,7 @@ private:
 
     UserInput _last_input;
 
-    glm::vec3 _background_color;
-
     ShaderRasterization _tile_shader;
-    glm::vec3 _tile_color;
-    float _tile_scale;
     glm::mat4 _tile_transform;
     
     Texture2D _bitmap_font;

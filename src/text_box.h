@@ -11,6 +11,7 @@
 struct TextBox {
 public:
     void gen_vtx_array(const std::string& text, const glm::vec2& center, float font_scale);    
+    void gen_vtx_array(const std::string& text, const glm::vec2& center, const glm::vec2& font_scale);    
 
     void free();
 

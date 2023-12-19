@@ -10,8 +10,17 @@
 //#define CONSOLE_DEBUG_BOARD
 //#define CONSOLE_DUMP_TFORM
 
+const glm::vec3 BACKGROUND_COLOR(0.9, 0.9, 0.8);
+
+const float TILE_SCALE = 0.8;
+const glm::vec3 TILE_COLOR(0.8, 0.8, 0.7);
+
+const float FONT_SCALE = 0.2;
+
+const glm::vec2 GAME_OVER_FONT_SCALE(0.2, 0.2);
+
 bool glew_already_init = false;
-UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720) {
+UIController::UIController() : _last_input(UINPUT_NONE), _width(1280), _height(720) {
     _window.open("2048: The Game", _width, _height, false);
 
     if(!glew_already_init && glewInit() != GLEW_OK) {
@@ -27,18 +36,14 @@ UIController::UIController() : _last_input(MOV_NONE), _width(1280), _height(720)
     std::cout << "Vendor:\t" << vendor << '\n';
     std::cout << "Renderer:\t" << renderer << '\n';
 
-    _background_color = glm::vec3(0.9, 0.9, 0.8);
-
     _tile_shader.CompileFiles("./res/shaders/tile.vert", "./res/shaders/tile.frag");
-    _tile_scale = 0.8;
-    _tile_color = glm::vec3(0.8, 0.8, 0.7);
-
 
     float horizontal = 1.0;
     float vertical = (horizontal * _height) / _width;
 
+    // TODO: support dynamic transform with changing resolution
     float tile_prescale = 0.5f;
-    glm::vec2 tile_offset = glm::vec2(-0.5, 0.0);
+    glm::vec2 tile_offset = glm::vec2(-0.9, 0.0);
     glm::mat4 pretransform = glm::scale(glm::mat4(1.0f), glm::vec3(tile_prescale, tile_prescale, 1.0f));
     pretransform = glm::translate(pretransform, glm::vec3(tile_offset, 0.0f));
 
@@ -57,7 +62,7 @@ UIController::~UIController() {
 }
 
 
-void UIController::render_board(const Board& board) {
+void UIController::render_game(const Board& board, GameState game_state) {
     // render and swap buffers
     #ifdef CONSOLE_DEBUG_BOARD
     std::cout << "\n\n\n";
@@ -70,7 +75,7 @@ void UIController::render_board(const Board& board) {
     std::cout.flush();
     #endif
 
-    glClearColor(_background_color.r, _background_color.y, _background_color.z, 1.0);
+    glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     Buffer tile_buf;
@@ -78,7 +83,7 @@ void UIController::render_board(const Board& board) {
     tile_arr.CreateBinding();
     int n_tile_triangles = gen_tiles(tile_arr, tile_buf);
     _tile_shader.CreateBinding();
-    _tile_shader.LoadVector3F32("tile_color", _tile_color);
+    _tile_shader.LoadVector3F32("tile_color", TILE_COLOR);
     _tile_shader.LoadMat4x4F32("tile_transform", _tile_transform);
     glDrawArrays(GL_TRIANGLES, 0, n_tile_triangles);
     tile_arr.Free();
@@ -92,7 +97,7 @@ void UIController::render_board(const Board& board) {
             std::string text = std::to_string(board._num[j][i]);
 
             TextBox tbox;
-            tbox.gen_vtx_array(text, offset, 0.2);
+            tbox.gen_vtx_array(text, offset, FONT_SCALE);
 
             tbox._vtx_arr.CreateBinding();
             _bitmap_shader.CreateBinding();
@@ -103,6 +108,23 @@ void UIController::render_board(const Board& board) {
         }
     }
 
+    if(game_state != GAME_STATE_IN_PROGRESS) {
+        std::string text = (game_state == GAME_STATE_WON ? "You won!" : "You lost,\nskill issue");
+
+
+        glm::vec2 offset = (game_state == GAME_STATE_WON ? glm::vec2(1.8, 0.0): glm::vec2(3.0, 0.0));
+
+        TextBox tbox;
+        tbox.gen_vtx_array(text, offset, GAME_OVER_FONT_SCALE);
+
+        tbox._vtx_arr.CreateBinding();
+        _bitmap_shader.CreateBinding();
+        _bitmap_shader.LoadMat4x4F32("tile_transform", _tile_transform);
+        _bitmap_shader.LoadTexture2D("bitmap", _bitmap_font);
+        glDrawArrays(GL_TRIANGLES, 0, tbox._num_triangles);
+        tbox.free();
+    }
+
     if(GLenum err = glGetError() != GL_NO_ERROR) {
         std::cout << err << std::endl;
         abort();
@@ -110,10 +132,14 @@ void UIController::render_board(const Board& board) {
 
     _window.update_screen();
     _window.update_poll_events();
+
+    if(_window.get_key(GLFW_KEY_ESCAPE)) {
+        _window.close();
+    }
 }
 
 UserInput UIController::poll_user_input() {
-    UserInput implied_input = MOV_NONE;
+    UserInput implied_input = UINPUT_NONE;
 
     UserInput current_input = poll_current_input();
     if(current_input != _last_input) {
@@ -156,7 +182,7 @@ int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
         for(int j = 0; j < BOARD_SIZE; j++) {
             glm::vec2 offset = get_tile_offset(i, j);
 
-            float adjusted_scale = _tile_scale / BOARD_SIZE;
+            float adjusted_scale = TILE_SCALE / BOARD_SIZE;
             for(auto& v : tile_base) {
                 tiles.push_back(adjusted_scale * v + offset);
             }
@@ -184,14 +210,18 @@ int UIController::gen_tiles(VertexArray& tile_arr, Buffer& tile_buf) {
 
 UserInput UIController::poll_current_input() {
     if(_window.get_key(GLFW_KEY_W)) {
-        return MOV_U;
+        return UINPUT_MOVE_UP;
     } else if(_window.get_key(GLFW_KEY_S)) {
-        return MOV_D;
+        return UINPUT_MOVE_DOWN;
     } else if(_window.get_key(GLFW_KEY_D)) {
-        return MOV_R;
+        return UINPUT_MOVE_RIGHT;
     } else if(_window.get_key(GLFW_KEY_A)) {
-        return MOV_L;
+        return UINPUT_MOVE_LEFT;
+    } else if(_window.get_key(GLFW_KEY_R)) {
+        return UINPUT_RESET;
     } else {
-        return MOV_NONE;
+        return UINPUT_NONE;
+
     }
+
 }

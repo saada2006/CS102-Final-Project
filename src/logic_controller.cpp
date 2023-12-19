@@ -1,7 +1,7 @@
 #include "logic_controller.h"
 
 #include "board.h"
-#include "movement_input.h"
+#include "user_input.h"
 
 #include <algorithm>
 #include <iostream>
@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-const int WINNING_NUMBER = 2048;
+const int WINNING_NUMBER = 64;
 
 LogicController::LogicController() {
     init_rng();
@@ -27,6 +27,11 @@ void LogicController::restart() {
 
 
 void LogicController::accept_input(UserInput input) {
+    if(input == UINPUT_RESET) {
+        restart();
+        return;
+    }
+
     if(_game_state != GAME_STATE_IN_PROGRESS) {
         return;
     }
@@ -47,7 +52,7 @@ void LogicController::accept_input(UserInput input) {
     }
 
     std::vector<UserInput> attempt_moves = {
-        MOV_L, MOV_R, MOV_D, MOV_U
+        UINPUT_MOVE_LEFT, UINPUT_MOVE_RIGHT, UINPUT_MOVE_DOWN, UINPUT_MOVE_UP
     };
 
     bool lost_game = true;
@@ -68,21 +73,21 @@ void LogicController::accept_input(UserInput input) {
 bool LogicController::move_board(UserInput input, Board& temp_board) {
     bool updated = false;
 
-    if(input == MOV_NONE) {
+    if(input == UINPUT_NONE) {
         updated = false;
-    } else if(input == MOV_L) {
+    } else if(input == UINPUT_MOVE_LEFT) {
         updated = collapse_board(temp_board);
-    } else if(input == MOV_R) {
+    } else if(input == UINPUT_MOVE_RIGHT) {
         reverse_board_horizontal(temp_board);
         updated = collapse_board(temp_board);
         reverse_board_horizontal(temp_board);
-    } else if(input == MOV_U) {
+    } else if(input == UINPUT_MOVE_UP) {
         reverse_board_vertical(temp_board);
         reverse_board_horizontal(temp_board);
         updated = collapse_board(temp_board);
         reverse_board_horizontal(temp_board);
         reverse_board_vertical(temp_board);
-    } else if(input == MOV_D) {
+    } else if(input == UINPUT_MOVE_DOWN) {
         reverse_board_vertical(temp_board);
         updated = collapse_board(temp_board);
         reverse_board_vertical(temp_board);

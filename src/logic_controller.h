@@ -2,15 +2,10 @@
 #define LOGIC_CONTROLLER_H
 
 #include "board.h"
-#include "movement_input.h"
+#include "game_state.h"
+#include "user_input.h"
 
 #include <random>
-
-enum GameState {
-    GAME_STATE_IN_PROGRESS,
-    GAME_STATE_LOST,
-    GAME_STATE_WON,
-};
 
 class LogicController {
 public:

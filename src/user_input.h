@@ -1,0 +1,13 @@
+#ifndef MOVEMENT_INPUT_H
+#define MOVEMENT_INPUT_H
+
+enum UserInput {
+    UINPUT_NONE,
+    UINPUT_MOVE_UP,
+    UINPUT_MOVE_DOWN,
+    UINPUT_MOVE_RIGHT,
+    UINPUT_MOVE_LEFT,
+    UINPUT_RESET
+};
+
+#endif

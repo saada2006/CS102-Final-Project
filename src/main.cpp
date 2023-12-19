@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 
     while(ui_con.window_open()) {
         logic_con.accept_input(ui_con.poll_user_input());
-        ui_con.render_board(logic_con.get_board());
+        ui_con.render_game(logic_con.get_board(), logic_con.get_game_state());
     }
     
     return 0;
